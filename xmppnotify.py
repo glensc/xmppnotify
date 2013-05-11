@@ -79,7 +79,7 @@ class NotifyBot(sleekxmpp.ClientXMPP):
                    how it may be used.
         """
         if msg['type'] in ('chat', 'normal'):
-            title = msg['from'].bare || 'xmppnotify'
+            title = msg['from'].bare or 'xmppnotify'
             body = msg['body']
             icon = 'info'
             n = pynotify.Notification(title, body, icon)
