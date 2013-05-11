@@ -1,0 +1,4 @@
+xmppnotify
+==========
+
+jabber client + libnotify
