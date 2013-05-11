@@ -13,6 +13,7 @@ import sys
 import logging
 import getpass
 from optparse import OptionParser
+import pynotify
 
 import sleekxmpp
 
@@ -27,7 +28,7 @@ else:
     raw_input = input
 
 
-class EchoBot(sleekxmpp.ClientXMPP):
+class NotifyBot(sleekxmpp.ClientXMPP):
 
     """
     A simple SleekXMPP bot that will echo messages it
@@ -78,8 +79,12 @@ class EchoBot(sleekxmpp.ClientXMPP):
                    how it may be used.
         """
         if msg['type'] in ('chat', 'normal'):
-            msg.reply("Thanks for sending\n%(body)s" % msg).send()
-
+            title = msg['from'].bare || 'xmppnotify'
+            body = msg['body']
+            icon = 'info'
+            n = pynotify.Notification(title, body, icon)
+            if not n.show():
+                logging.error("Failed to send notification")
 
 if __name__ == '__main__':
     # Setup the command line arguments.
@@ -113,10 +118,14 @@ if __name__ == '__main__':
     if opts.password is None:
         opts.password = getpass.getpass("Password: ")
 
-    # Setup the EchoBot and register plugins. Note that while plugins may
+    # Init libnotify
+    if not pynotify.init("xmppnotify"):
+        logging.warning("Failed to setup pynotify")
+
+    # Setup the NotifyBot and register plugins. Note that while plugins may
     # have interdependencies, the order in which you register them does
     # not matter.
-    xmpp = EchoBot(opts.jid, opts.password)
+    xmpp = NotifyBot(opts.jid, opts.password)
     xmpp.register_plugin('xep_0030') # Service Discovery
     xmpp.register_plugin('xep_0004') # Data Forms
     xmpp.register_plugin('xep_0060') # PubSub
