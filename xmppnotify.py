@@ -9,11 +9,13 @@
     See the file LICENSE for copying permission.
 """
 
+import os
 import sys
 import logging
 import getpass
 from optparse import OptionParser
 import pynotify
+import ConfigParser 
 
 import sleekxmpp
 
@@ -112,6 +114,16 @@ if __name__ == '__main__':
     # Setup logging.
     logging.basicConfig(level=opts.loglevel,
                         format='%(levelname)-8s %(message)s')
+
+    # Load jid and password from xmpp section
+    configfile = os.path.expanduser('~/.config/xmppnotify.conf')
+    if os.path.exists(configfile):
+        config = ConfigParser.ConfigParser() 
+        config.read(configfile)
+        if opts.jid is None and config.get('xmpp', 'jid'):
+            opts.jid = config.get('xmpp', 'jid')
+        if opts.password is None and config.get('xmpp', 'password'):
+            opts.password = config.get('xmpp', 'password')
 
     if opts.jid is None:
         opts.jid = raw_input("Username: ")
